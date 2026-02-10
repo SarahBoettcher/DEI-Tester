@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Parks Victoria — DEI Reflection</title>
+<style>
+  /* ---------- THEME / SCOPE ---------- */
+  :root{
+    color-scheme: light;
+  }
+  body{
+    margin:0;
+    background:#fff;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  /* Optional: give the page a minimum height so most Rise embeds fit without scrollbars. */
+  html, body { min-height: 760px; }
+
+  #pv-reflection-widget{
+    --pv-green:#1b5e20;
+    --pv-green2:#2e7d32;
+    --pv-bg:#f4fbf5;
+    --pv-text:#0f1a12;
+    --pv-muted:#4b5b51;
+    --pv-border:rgba(27,94,32,.20);
+    max-width: 920px;
+    margin: 0 auto;
+    color: var(--pv-text);
+    padding: 16px; /* some breathing room inside an iframe */
+    box-sizing: border-box;
+  }
+
+  #pv-reflection-widget .card{
+    background: #fff;
+    border: 1px solid var(--pv-border);
+    border-radius: 18px;
+    box-shadow: 0 10px 26px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+
+  #pv-reflection-widget .header{
+    background: linear-gradient(135deg, var(--pv-green), var(--pv-green2));
+    padding: 18px;
+    color: #fff;
+  }
+
+  #pv-reflection-widget .badge{
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.25);
+    background: rgba(255,255,255,.14);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: .2px;
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+
+  #pv-reflection-widget .meta{
+    font-size: 13px;
+    opacity: .9;
+    margin-top: 4px;
+  }
+
+  #pv-reflection-widget .status{
+    font-size: 13px;
+    opacity: .92;
+    text-align: right;
+  }
+
+  #pv-reflection-widget .content{
+    padding: 18px;
+    background: var(--pv-bg);
+  }
+
+  #pv-reflection-widget .prompt{
+    background: #fff;
+    border: 1px solid var(--pv-border);
+    border-left: 6px solid var(--pv-green2);
+    border-radius: 14px;
+    padding: 14px;
+  }
+
+  #pv-reflection-widget .prompt-title{
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+
+  #pv-reflection-widget label{
+    display:block;
+    font-weight: 900;
+    margin: 14px 0 8px;
+  }
+
+  #pv-reflection-widget textarea{
+    width: 100%;
+    min-height: 220px;
+    border-radius: 14px;
+    border: 1px solid var(--pv-border);
+    padding: 12px;
+    font-size: 15px;
+    line-height: 1.45;
+    resize: vertical;
+    outline: none;
+    background: #fff;
+    box-sizing: border-box;
+  }
+
+  #pv-reflection-widget textarea:focus{
+    border-color: rgba(46,125,50,.65);
+    box-shadow: 0 0 0 4px rgba(46,125,50,.16);
+  }
+
+  #pv-reflection-widget .row{
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  #pv-reflection-widget .counts{
+    font-size: 13px;
+    color: var(--pv-muted);
+  }
+
+  /* Progress bar */
+  #pv-reflection-widget .progress-wrap{
+    margin-top: 10px;
+    background: rgba(27,94,32,.10);
+    border: 1px solid rgba(27,94,32,.14);
+    border-radius: 999px;
+    height: 12px;
+    overflow: hidden;
+  }
+  #pv-reflection-widget .progress-bar{
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--pv-green2), var(--pv-green));
+    border-radius: 999px;
+    transition: width .18s ease;
+  }
+
+  #pv-reflection-widget .hr{
+    height: 1px;
+    background: rgba(27,94,32,.12);
+    margin: 16px 0;
+  }
+
+  #pv-reflection-widget .buttons{
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 16px;
+  }
+
+  #pv-reflection-widget button{
+    border-radius: 999px;
+    border: 1px solid var(--pv-border);
+    padding: 10px 14px;
+    font-weight: 900;
+    cursor: pointer;
+    background: #fff;
+    color: var(--pv-green);
+  }
+  #pv-reflection-widget button:hover{ background: rgba(46,125,50,.07); }
+
+  #pv-reflection-widget .primary{
+    background: var(--pv-green2);
+    border-color: var(--pv-green2);
+    color: #fff;
+  }
+  #pv-reflection-widget .primary:hover{
+    background: var(--pv-green);
+    border-color: var(--pv-green);
+  }
+
+  #pv-reflection-widget .danger{
+    color: #b71c1c;
+    border-color: rgba(183,28,28,.25);
+  }
+  #pv-reflection-widget .danger:hover{ background: rgba(183,28,28,.06); }
+
+  #pv-reflection-widget button:disabled{
+    opacity: .55;
+    cursor: not-allowed;
+  }
+
+  #pv-reflection-widget .alert{
+    display:none;
+    background: #e7f6ec;
+    border: 1px solid rgba(46,125,50,.25);
+    color: #0f3d1a;
+    padding: 12px;
+    border-radius: 14px;
+    font-weight: 800;
+    margin-top: 14px;
+  }
+
+  #pv-reflection-widget .note{
+    font-size: 12.5px;
+    color: var(--pv-muted);
+    margin-top: 12px;
+  }
+
+  /* Print */
+  @media print{
+    #pv-reflection-widget .no-print{ display:none !important; }
+    #pv-reflection-widget .content{ background:#fff !important; }
+    #pv-reflection-widget .card{ box-shadow:none !important; }
+    #pv-reflection-widget .header{
+      background:#fff !important;
+      color:#000 !important;
+      border-bottom:1px solid #ddd;
+    }
+    #pv-reflection-widget textarea{
+      border:1px solid #bbb !important;
+      box-shadow:none !important;
+    }
+    body{ background:#fff; }
+  }
+</style>
+</head>
+<body>
+<main id="pv-reflection-widget" aria-labelledby="pv-title">
+
+  <div class="card">
+    <div class="header">
+      <div style="display:flex; gap:10px; justify-content:space-between; flex-wrap:wrap; align-items:flex-start;">
+        <div>
+          <span class="badge">Reflection</span>
+          <span class="badge"><span data-pv="char">0</span> / <span data-pv="min">200</span> characters</span>
+          <div id="pv-title" style="font-size:18px; font-weight:950; margin-top:8px;">Diversity, Equity &amp; Inclusion (DEI)</div>
+          <div class="meta">There’s no right or wrong answer — share your thoughts.</div>
+        </div>
+        <div class="status" aria-live="polite">
+          <div><strong data-pv="save">Not saved yet</strong></div>
+          <div style="opacity:.9;">Saved only in this browser</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="prompt" role="region" aria-labelledby="pv-question-title">
+        <div class="prompt-title" id="pv-question-title">Question</div>
+        <div>
+          Before we learn more about what Diversity, Equity and Inclusion means at Parks Victoria, with the knowledge you already have reflect on what it would be like to work in an organisation where everyone was the same.
+          <br><br>
+          What would that look like? Would it be an advantage or disadvantage and why?
+          <br><br>
+          Share your reflections below.
+        </div>
+      </div>
+
+      <label for="pv-input">Your reflection</label>
+      <textarea id="pv-input" placeholder="Type your reflection here..." aria-describedby="pv-counts pv-progress"></textarea>
+
+      <div class="row" id="pv-counts" aria-live="polite">
+        <div class="counts">
+          Minimum required to continue: <strong>200</strong> characters (spaces included)
+          <span> • <span data-pv="left">200</span> to go</span>
+        </div>
+        <div class="counts"><span data-pv="words">0</span> words • <span data-pv="chars2">0</span> chars</div>
+      </div>
+
+      <div class="progress-wrap" aria-label="Progress toward 200 characters">
+        <div class="progress-bar" data-pv="bar" role="progressbar" aria-valuemin="0" aria-valuemax="200" aria-valuenow="0" id="pv-progress"></div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="buttons no-print">
+        <button type="button" data-pv="print">Print</button>
+        <button type="button" data-pv="download">Download (.txt)</button>
+        <button type="button" class="danger" data-pv="clear" style="margin-left:auto;">Clear</button>
+        <button type="button" class="primary" data-pv="continue" disabled>Continue</button>
+      </div>
+
+      <div class="alert" data-pv="done" role="status" aria-live="polite">
+        ✅ Thanks — you can now return to the Rise lesson and select <strong>Continue</strong>.
+      </div>
+
+      <div class="note">
+        <strong>Privacy note:</strong> Your response is stored only in your browser (local storage) to help you keep your work if you return.
+        It is not submitted to Rise or the LMS. If you clear browser data or switch devices, it may be lost.
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  function init(){
+    var root = document.getElementById("pv-reflection-widget");
+    if(!root) return;
+
+    var STORAGE_KEY = "pv_dei_reflection_chars200_v2";
+    var MIN_CHARS = 200;
+
+    // Scoped selectors
+    var input    = root.querySelector("#pv-input");
+    var charEl   = root.querySelector('[data-pv="char"]');
+    var minEl    = root.querySelector('[data-pv="min"]');
+    var leftEl   = root.querySelector('[data-pv="left"]');
+    var saveEl   = root.querySelector('[data-pv="save"]');
+    var wordsEl  = root.querySelector('[data-pv="words"]');
+    var chars2El = root.querySelector('[data-pv="chars2"]');
+    var bar      = root.querySelector('[data-pv="bar"]');
+
+    var printBtn    = root.querySelector('[data-pv="print"]');
+    var downloadBtn = root.querySelector('[data-pv="download"]');
+    var clearBtn    = root.querySelector('[data-pv="clear"]');
+    var continueBtn = root.querySelector('[data-pv="continue"]');
+    var done        = root.querySelector('[data-pv="done"]');
+
+    if(!input) return;
+
+    minEl.textContent = MIN_CHARS;
+
+    function countWords(text){
+      var t = (text || "").trim();
+      if(!t) return 0;
+      return t.split(/\s+/).length;
+    }
+
+    function update(){
+      var text  = input.value || "";
+      var chars = text.length; // includes spaces
+      var left  = Math.max(0, MIN_CHARS - chars);
+
+      // Update numbers
+      if(charEl)   charEl.textContent = chars;
+      if(chars2El) chars2El.textContent = chars;
+      if(leftEl)   leftEl.textContent = left;
+      if(wordsEl)  wordsEl.textContent = countWords(text);
+
+      // Progress
+      var pct = Math.min(100, (chars / MIN_CHARS) * 100);
+      if(bar){
+        bar.style.width = pct + "%";
+        bar.setAttribute("aria-valuenow", String(Math.min(chars, MIN_CHARS)));
+      }
+
+      // Gate continue
+      if(continueBtn) continueBtn.disabled = chars < MIN_CHARS;
+
+      // Hide done message if they drop below requirement
+      if(done && chars < MIN_CHARS) done.style.display = "none";
+    }
+
+    function saveNow(){
+      try{
+        localStorage.setItem(STORAGE_KEY, input.value || "");
+        var now = new Date();
+        if(saveEl) saveEl.textContent = "Saved " + now.toLocaleTimeString();
+      }catch(e){
+        if(saveEl) saveEl.textContent = "Saving not available";
+      }
+    }
+
+    // Restore
+    try{
+      var saved = localStorage.getItem(STORAGE_KEY);
+      if(saved){
+        input.value = saved;
+        if(saveEl) saveEl.textContent = "Restored from previous visit";
+      }else{
+        if(saveEl) saveEl.textContent = "Not saved yet";
+      }
+    }catch(e){
+      if(saveEl) saveEl.textContent = "Saving not available";
+    }
+
+    update();
+
+    // Autosave + live update
+    var timer = null;
+    function onChange(){
+      update();
+      if(saveEl) saveEl.textContent = "Typing…";
+      clearTimeout(timer);
+      timer = setTimeout(saveNow, 400);
+    }
+    input.addEventListener("input", onChange);
+    input.addEventListener("keyup", onChange);
+    input.addEventListener("change", onChange);
+
+    // Print
+    if(printBtn) printBtn.addEventListener("click", function(){
+      try { window.print(); }
+      catch(e){ alert("Printing isn’t available in this context."); }
+    });
+
+    // Download
+    if(downloadBtn) downloadBtn.addEventListener("click", function(){
+      var text = input.value || "";
+      var header = "Parks Victoria — DEI Reflection\n\n";
+      try{
+        var blob = new Blob([header + text], {type: "text/plain;charset=utf-8"});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "PV_DEI_Reflection.txt";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }catch(e){
+        // Fallback: open in a new window/tab
+        try{
+          var alt = window.open("", "_blank");
+          if(alt){
+            alt.document.write("<pre style='white-space:pre-wrap;font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;'>" +
+              (header + text).replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }) +
+              "</pre>");
+            alt.document.close();
+          }else{
+            alert("Download was blocked. Please copy your text and paste it into a text file.");
+          }
+        }catch(e2){
+          alert("Download isn’t available here. Please copy your reflection and save it locally.");
+        }
+      }
+    });
+
+    // Clear
+    if(clearBtn) clearBtn.addEventListener("click", function(){
+      input.value = "";
+      try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+      if(saveEl) saveEl.textContent = "Cleared";
+      if(done) done.style.display = "none";
+      update();
+      input.focus();
+    });
+
+    // Continue (informational only)
+    if(continueBtn) continueBtn.addEventListener("click", function(){
+      saveNow();
+      if(done){
+        done.style.display = "block";
+        done.scrollIntoView({behavior:"smooth", block:"start"});
+      }
+      // Note: Rise doesn’t listen for completion events from embeds.
+      // Use a Continue block in Rise to manage progression.
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+  // Double-init in case of delayed rendering
+  setTimeout(init, 250);
+  setTimeout(init, 800);
+})();
+</script>
+</body>
+</html>
